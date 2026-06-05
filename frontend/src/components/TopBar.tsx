@@ -24,10 +24,10 @@ export default function TopBar({ stats, isConnected }: Props) {
         </div>
         <div>
           <div className="text-sm font-semibold tracking-tight text-rr-text leading-none">
-            REAL RAILS
+            REAL RAILS 
           </div>
           <div className="text-[10px] text-rr-muted tracking-widest uppercase leading-none mt-0.5">
-            Global RTP Intelligence · PoC #05
+            Global RTP Intelligence  
           </div>
         </div>
       </div>
