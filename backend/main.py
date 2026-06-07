@@ -150,19 +150,47 @@ async def get_geojson(
 
 
 import json as json_lib
+import csv as csv_lib
 from pathlib import Path
 
 DATA_DIR = Path(__file__).parent / "data"
 
 
 def _load(filename: str) -> list:
-    """Load records from a synthetic data JSON file. Returns [] if missing."""
-    path = DATA_DIR / filename
-    if not path.exists():
-        return []
-    with open(path, encoding="utf-8") as f:
-        payload = json_lib.load(f)
-    return payload.get("records", [])
+    """
+    Smart loader — accepts either JSON or CSV.
+    Pass the JSON filename (e.g. 'rtp_country_synthetic.json').
+    If the JSON is missing it automatically falls back to the CSV equivalent.
+    CSV values are auto-cast: 'true'/'false' → bool, numeric strings → float/int.
+    """
+    def cast(v: str):
+        if v == "":           return None
+        if v == "true":       return True
+        if v == "false":      return False
+        try:                  return int(v)
+        except ValueError:    pass
+        try:                  return float(v)
+        except ValueError:    pass
+        return v
+
+    # 1. Try JSON first
+    json_path = DATA_DIR / filename
+    if json_path.exists():
+        with open(json_path, encoding="utf-8") as f:
+            payload = json_lib.load(f)
+        return payload.get("records", payload if isinstance(payload, list) else [])
+
+    # 2. Fall back to CSV (same stem, .csv extension)
+    csv_path = DATA_DIR / (Path(filename).stem + ".csv")
+    if csv_path.exists():
+        rows = []
+        with open(csv_path, encoding="utf-8", newline="") as f:
+            for row in csv_lib.DictReader(f):
+                rows.append({k: cast(v) for k, v in row.items()})
+        return rows
+
+    # 3. Nothing found
+    return []
 
 
 # ── Transactions ───────────────────────────────────────────────────────────────
@@ -177,7 +205,7 @@ async def get_transactions(
     """Return synthetic transactions, filterable by scheme, country, status, type."""
     rows = _load("rtp_transaction_synthetic.json")
     if not rows:
-        raise HTTPException(status_code=503, detail="Transaction data file not found. Place rtp_transaction_synthetic.json in /data/")
+        raise HTTPException(status_code=503, detail="Transaction data not found. Place rtp_transaction_synthetic.json or .csv in /data/")
     if scheme:
         rows = [r for r in rows if r.get("scheme_name", "").upper() == scheme.upper()]
     if country:
@@ -234,7 +262,7 @@ async def get_interop_links(
     """Return interop links between RTP schemes."""
     rows = _load("rtp_interoplink_synthetic.json")
     if not rows:
-        raise HTTPException(status_code=503, detail="Interop data file not found. Place rtp_interoplink_synthetic.json in /data/")
+        raise HTTPException(status_code=503, detail="Interop data not found. Place rtp_interoplink_synthetic.json or .csv in /data/")
     if status:
         rows = [r for r in rows if r.get("status", "").lower() == status.lower()]
     if scheme:
@@ -258,7 +286,7 @@ async def get_countries(
     """Return country-level economic and RTP readiness data."""
     rows = _load("rtp_country_synthetic.json")
     if not rows:
-        raise HTTPException(status_code=503, detail="Country data file not found. Place rtp_country_synthetic.json in /data/")
+        raise HTTPException(status_code=503, detail="Country data not found. Place rtp_country_synthetic.json or .csv in /data/")
     if country:
         cu = country.upper()
         rows = [r for r in rows if r.get("country_code", "").upper() == cu]
