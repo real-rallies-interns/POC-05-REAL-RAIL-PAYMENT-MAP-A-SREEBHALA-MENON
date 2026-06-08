@@ -12,9 +12,11 @@ interface Props {
 export default function TimelineBar({ timeline, activeYear, onChange }: Props) {
   const [dragging, setDragging] = useState(false);
   const years = Object.keys(timeline).map(Number).sort((a, b) => a - b);
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
-  const maxCount = Math.max(...Object.values(timeline));
+  // CHANGE: enforce 2010 as minimum year per Case Study spec
+  const MIN_YEAR = 2010;
+  const years = Object.keys(timeline).map(Number).filter(y => y >= MIN_YEAR).sort((a, b) => a - b);
+  const minYear = MIN_YEAR;
+  const maxYear = new Date().getFullYear(); // always current year
 
   if (!years.length) return null;
 
