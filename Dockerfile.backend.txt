@@ -1,0 +1,66 @@
+# =============================================================================
+# Cinematic Rail PoC — FastAPI Backend
+# Multi-Stage Dockerfile
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stage 1: builder — install Python dependencies into an isolated prefix
+# -----------------------------------------------------------------------------
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+
+# System deps needed by geopandas (GDAL/libgeos) and other C-extension packages
+RUN apt-get update && apt-get install -y --no-install-recommends libgeos-dev libgdal-dev libproj-dev && rm -rf /var/lib/apt/lists/*
+
+# Copy only the dependency manifest first so Docker can cache this layer
+COPY real-rails-backend/requirements.txt .
+
+# Install into a self-contained prefix so we can copy it cleanly to the runner
+RUN pip install --upgrade pip \
+    && pip install --prefix=/install --no-cache-dir -r requirements.txt
+
+
+# -----------------------------------------------------------------------------
+# Stage 2: runner — lean production image
+# -----------------------------------------------------------------------------
+FROM python:3.11-slim AS runner
+
+# Runtime-only system libraries required by geopandas/shapely at import time
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libgeos-dev `\n        libgdal-dev `\n        libproj-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user for security
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+
+WORKDIR /app
+
+# Pull in pre-built site-packages from the builder stage
+COPY --from=builder /install /usr/local
+
+# Copy application source
+COPY real-rails-backend/ .
+
+# Ensure data directory is present (json data files)
+RUN mkdir -p data
+
+# Give ownership to the non-root user
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+# FastAPI port (default 8000 — overridable via PORT env var)
+EXPOSE 8000
+
+# Health-check so docker-compose / orchestrators know when the service is up
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${PORT:-8000}/')" || exit 1
+
+# Use shell form so ${PORT} is expanded at runtime from the env file
+CMD uvicorn main:app \
+        --host ${HOST:-0.0.0.0} \
+        --port ${PORT:-8000} \
+        --workers 2 \
+        $([ "${RELOAD:-false}" = "true" ] && echo "--reload" || true)
+
+

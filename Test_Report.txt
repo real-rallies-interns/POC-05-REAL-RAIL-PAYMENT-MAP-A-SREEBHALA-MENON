@@ -1,0 +1,20 @@
+============================================================
+REAL RAILS - GLOBAL RTP INTELLIGENCE
+Automated UAT Report (Selenium)
+============================================================
+Target URL : https://rtp-frontend-app.azurewebsites.net
+Run at     : 2026-06-20 21:44:21
+------------------------------------------------------------
+[PASS] Test Case 1: Visual Load
+        Map/visualization SVG container is visible.
+
+[PASS] Test Case 2: The Handshake
+        Intelligence Panel slid into view after clicking a node.
+
+[PASS] Test Case 3: The Signature
+        Found 'A Sreebhala Menon' in the Developer Info modal.
+
+------------------------------------------------------------
+RESULT: 3/3 test cases passed.
+STATUS: 100% PASS - Automation Certified.
+============================================================

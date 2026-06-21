@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+/* ── Pillar I: Financial Rail Deep DNA ─────────────────────────────────────
+   Deep burgundy-wine tint. Luminance < 10%.
+   Primary accent: violet-rose (#C084FC) for finance/payments vibe.
+   ────────────────────────────────────────────────────────────────────────── */
+html, body {
+  background-color: #0F0608;
+  color: #E2E8F0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  height: 100%;
+}
+
+#__next, main {
+  height: 100%;
+}
+
+/* Leaflet map dark override — purple-obsidian tint */
+.leaflet-container {
+  background: #0F0608 !important;
+}
+.leaflet-tile-pane {
+  filter: brightness(0.45) saturate(0.4) hue-rotate(220deg) invert(1);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #0D0B1A; }
+::-webkit-scrollbar-thumb { background: #1E1B33; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #7C6FF7; }
+
+/* Glass card */
+.glass-card {
+  background: rgba(13, 11, 26, 0.88);
+  backdrop-filter: blur(12px);
+  border: 1px solid #1E1B33;
+  border-radius: 8px;
+}
+
+/* Violet glow on active */
+.active-glow {
+  box-shadow: 0 0 0 0.5px #7C6FF7, 0 0 14px rgba(124, 111, 247, 0.22);
+}
+
+/* Data pulse dot */
+@keyframes pulse-ring {
+  0%   { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-ring 1.8s ease-out infinite;
+}
+
+/* Tooltip fade */
+.leaflet-tooltip {
+  background: #0D0B1A !important;
+  border: 1px solid #1E1B33 !important;
+  color: #E2E8F0 !important;
+  border-radius: 6px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 12px !important;
+  padding: 6px 10px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
+}
+.leaflet-tooltip::before { display: none !important; }
+
+/* ── Pillar II: Slide-over Intelligence Panel ─────────────────────────────── */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in { animation: slideInRight 0.35s cubic-bezier(0.16,1,0.3,1) forwards; }
+
+/* Fade in */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fadeUp 0.4s ease forwards; }
+
+/* ── Pillar III: Infocreon Header ─────────────────────────────────────────── */
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-down { animation: fadeInDown 0.3s ease forwards; }

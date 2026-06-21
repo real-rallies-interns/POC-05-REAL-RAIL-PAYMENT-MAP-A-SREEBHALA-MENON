@@ -1,0 +1,665 @@
+{
+  "title": "Real-Time Payment Map \u2014 Full Data Dictionary",
+  "version": "RTP-FULL-SYNTH-v1.0",
+  "classification": "SYNTHETIC_TEST_DATA",
+  "generated_at": "2025-06-01T00:00:00Z",
+  "warning": "ALL records are randomly generated. No real accounts, UTRs, volumes, or identifiers.",
+  "entities": {
+    "RTPScheme": {
+      "description": "A national instant payment system with its governance, limits, and adoption metadata.",
+      "row_count": 200,
+      "fields": {
+        "scheme_id": {
+          "type": "UUID",
+          "nullable": false,
+          "description": "Primary key. Synthetic UUID."
+        },
+        "country_code": {
+          "type": "ISO3166",
+          "nullable": false,
+          "description": "ISO 3166-1 alpha-2 of the scheme's home country."
+        },
+        "country_name": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Full English country name."
+        },
+        "scheme_name": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Official name of the RTP scheme (e.g. UPI, Pix, FedNow)."
+        },
+        "operator": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Entity operating the scheme infrastructure."
+        },
+        "regulator": {
+          "type": "STRING",
+          "nullable": true,
+          "description": "Supervisory body. Null in MISSING_REGULATOR edge case."
+        },
+        "maturity": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Adoption tier.",
+          "values": [
+            "Pioneer",
+            "Growing",
+            "Emerging",
+            "Legacy"
+          ]
+        },
+        "status": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Operational status.",
+          "values": [
+            "Live",
+            "In Development",
+            "Pilot",
+            "Suspended",
+            "Decommissioned"
+          ]
+        },
+        "launch_year": {
+          "type": "INTEGER",
+          "nullable": true,
+          "description": "Year scheme went live. Null if In Development."
+        },
+        "transaction_limit_usd": {
+          "type": "DECIMAL",
+          "nullable": true,
+          "description": "Per-transaction ceiling in USD equivalent."
+        },
+        "iso_standard": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Messaging standard used (ISO 20022, ISO 8583, Proprietary)."
+        },
+        "region": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Geographic grouping.",
+          "values": [
+            "Asia-Pacific",
+            "Europe",
+            "North America",
+            "Latin America",
+            "Africa",
+            "Middle East"
+          ]
+        },
+        "p2p_supported": {
+          "type": "BOOLEAN",
+          "nullable": false,
+          "description": "Person-to-Person transfers enabled."
+        },
+        "p2b_supported": {
+          "type": "BOOLEAN",
+          "nullable": false,
+          "description": "Person-to-Business transfers enabled."
+        },
+        "b2b_supported": {
+          "type": "BOOLEAN",
+          "nullable": false,
+          "description": "Business-to-Business transfers enabled."
+        },
+        "avg_daily_txn_millions": {
+          "type": "DECIMAL",
+          "nullable": true,
+          "description": "Average daily transaction count in millions. Synthetic estimate."
+        },
+        "uptime_pct_ytd": {
+          "type": "DECIMAL",
+          "nullable": true,
+          "description": "Year-to-date uptime percentage. Null if not live."
+        },
+        "api_access": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Developer API accessibility.",
+          "values": [
+            "Open",
+            "Regulated",
+            "Closed",
+            "Limited"
+          ]
+        },
+        "interop_count": {
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "Number of active cross-border interoperability links."
+        },
+        "last_updated": {
+          "type": "DATETIME",
+          "nullable": false,
+          "description": "Timestamp of last metadata update."
+        },
+        "edge_case_flag": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Test scenario tag.",
+          "values": [
+            "NORMAL",
+            "MISSING_REGULATOR",
+            "SCHEME_SUSPENDED",
+            "LIMIT_CHANGE_TRANSITION"
+          ]
+        },
+        "edge_case_note": {
+          "type": "STRING",
+          "nullable": true,
+          "description": "Human-readable edge case description."
+        },
+        "data_classification": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Always SYNTHETIC_TEST_DATA."
+        },
+        "synthetic_version": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Dataset version."
+        },
+        "do_not_use_in_prod": {
+          "type": "BOOLEAN",
+          "nullable": false,
+          "description": "Always True."
+        }
+      }
+    },
+    "Transaction": {
+      "description": "A single payment instruction flowing through an RTP scheme between two parties.",
+      "row_count": 200,
+      "fields": {
+        "transaction_id": {
+          "type": "UUID",
+          "nullable": false,
+          "description": "Globally unique transaction record identifier."
+        },
+        "utr_number": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Unique Transaction Reference. 16-24 alphanumeric chars. Synthetic."
+        },
+        "batch_id": {
+          "type": "STRING",
+          "nullable": true,
+          "description": "Batch grouping for scheduled/bulk transactions."
+        },
+        "scheme_name": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "FK \u2192 RTPScheme.scheme_name."
+        },
+        "rail_operator": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Operator of the scheme rail."
+        },
+        "originating_country": {
+          "type": "ISO3166",
+          "nullable": false,
+          "description": "Country where transaction was initiated."
+        },
+        "currency_code": {
+          "type": "ISO4217",
+          "nullable": false,
+          "description": "Transaction currency."
+        },
+        "transaction_type": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Payment flow.",
+          "values": [
+            "P2P",
+            "P2B",
+            "B2B",
+            "G2P",
+            "P2G"
+          ]
+        },
+        "amount": {
+          "type": "DECIMAL",
+          "nullable": false,
+          "description": "Gross amount. 0.00 only in ZERO_AMOUNT edge case."
+        },
+        "fee_charged": {
+          "type": "DECIMAL",
+          "nullable": false,
+          "description": "Fee deducted. Usually 0.00 for retail RTP."
+        },
+        "net_amount": {
+          "type": "DECIMAL",
+          "nullable": false,
+          "description": "amount minus fee_charged."
+        },
+        "status": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Settlement outcome.",
+          "values": [
+            "COMPLETED",
+            "FAILED",
+            "PENDING",
+            "REVERSED",
+            "TIMED_OUT"
+          ]
+        },
+        "failure_reason": {
+          "type": "ENUM",
+          "nullable": true,
+          "description": "Populated for non-COMPLETED only.",
+          "values": [
+            "INSUFFICIENT_FUNDS",
+            "ACCOUNT_FROZEN",
+            "INVALID_VPA",
+            "DAILY_LIMIT_EXCEEDED",
+            "BENEFICIARY_NOT_FOUND",
+            "DUPLICATE_TRANSACTION",
+            "SYSTEM_TIMEOUT",
+            "FRAUD_HOLD",
+            "BANK_OFFLINE",
+            "INVALID_ACCOUNT_NUMBER"
+          ]
+        },
+        "initiated_at": {
+          "type": "DATETIME",
+          "nullable": false,
+          "description": "When sender submitted the transaction."
+        },
+        "completed_at": {
+          "type": "DATETIME",
+          "nullable": true,
+          "description": "Settlement timestamp. Null if not COMPLETED."
+        },
+        "latency_ms": {
+          "type": "INTEGER",
+          "nullable": true,
+          "description": "End-to-end ms. >30000 = timeout. Null if PENDING."
+        },
+        "sender_account": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Masked account XXXX+8digits. Synthetic."
+        },
+        "sender_bank": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Sending institution code."
+        },
+        "receiver_account": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Masked account XXXX+8digits. Synthetic."
+        },
+        "receiver_bank": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Receiving institution code."
+        },
+        "device_type": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Initiation device.",
+          "values": [
+            "MOBILE_APP",
+            "WEB_BROWSER",
+            "POS_TERMINAL",
+            "ATM",
+            "USSD",
+            "API_DIRECT"
+          ]
+        },
+        "auth_method": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Sender authentication.",
+          "values": [
+            "MPIN",
+            "BIOMETRIC",
+            "OTP",
+            "HARDWARE_TOKEN",
+            "NONE"
+          ]
+        },
+        "merchant_category": {
+          "type": "ENUM",
+          "nullable": true,
+          "description": "MCC-equivalent. Null for P2P.",
+          "values": [
+            "RETAIL",
+            "FOOD_BEVERAGE",
+            "UTILITIES",
+            "EDUCATION",
+            "HEALTHCARE",
+            "TRANSPORT",
+            "GOVERNMENT_FEE",
+            null
+          ]
+        },
+        "is_cross_border": {
+          "type": "BOOLEAN",
+          "nullable": false,
+          "description": "True ~7% of records."
+        },
+        "edge_case_flag": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Test tag.",
+          "values": [
+            "NORMAL",
+            "DUPLICATE_UTR_ATTEMPT",
+            "AMOUNT_AT_LIMIT",
+            "ZERO_AMOUNT",
+            "SAME_SENDER_RECEIVER",
+            "AFTER_HOURS_LEGACY_BANK",
+            "HIGH_FREQUENCY_SENDER"
+          ]
+        },
+        "edge_case_note": {
+          "type": "STRING",
+          "nullable": true,
+          "description": "Edge case description."
+        },
+        "data_classification": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Always SYNTHETIC_TEST_DATA."
+        },
+        "synthetic_version": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Dataset version."
+        },
+        "do_not_use_in_prod": {
+          "type": "BOOLEAN",
+          "nullable": false,
+          "description": "Always True."
+        }
+      }
+    },
+    "Country": {
+      "description": "Nation-level metadata covering economic, demographic, and RTP readiness indicators.",
+      "row_count": 200,
+      "fields": {
+        "country_id": {
+          "type": "UUID",
+          "nullable": false,
+          "description": "Synthetic primary key."
+        },
+        "country_code": {
+          "type": "ISO3166",
+          "nullable": false,
+          "description": "ISO 3166-1 alpha-2."
+        },
+        "country_name": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "English country name."
+        },
+        "capital_city": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Capital city name."
+        },
+        "region": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Geographic region."
+        },
+        "gdp_usd_billions": {
+          "type": "DECIMAL",
+          "nullable": false,
+          "description": "Nominal GDP USD billions. Jittered \u00b115% from real estimate."
+        },
+        "population_millions": {
+          "type": "DECIMAL",
+          "nullable": false,
+          "description": "Population in millions."
+        },
+        "financial_inclusion_pct": {
+          "type": "DECIMAL",
+          "nullable": false,
+          "description": "% adults with bank/mobile money account. World Bank proxy."
+        },
+        "smartphone_penetration_pct": {
+          "type": "DECIMAL",
+          "nullable": false,
+          "description": "% population with smartphone."
+        },
+        "internet_penetration_pct": {
+          "type": "DECIMAL",
+          "nullable": false,
+          "description": "% population with internet access."
+        },
+        "has_live_rtp_scheme": {
+          "type": "BOOLEAN",
+          "nullable": false,
+          "description": "Whether country has at least one live RTP scheme."
+        },
+        "scheme_count": {
+          "type": "INTEGER",
+          "nullable": false,
+          "description": "Number of live RTP schemes in country."
+        },
+        "rtp_maturity_score": {
+          "type": "DECIMAL",
+          "nullable": false,
+          "description": "Composite score 0-10. Synthetic index."
+        },
+        "central_bank_name": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Name of central bank / monetary authority."
+        },
+        "currency_code": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Synthetic currency code approximation."
+        },
+        "last_world_bank_update": {
+          "type": "DATETIME",
+          "nullable": false,
+          "description": "Simulated World Bank data freshness timestamp."
+        },
+        "edge_case_flag": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Test tag.",
+          "values": [
+            "NORMAL",
+            "MISSING_SCHEME",
+            "CONFLICTING_DATA",
+            "NEWLY_INDEPENDENT",
+            "SANCTIONS_ACTIVE",
+            "DATA_STALE"
+          ]
+        },
+        "edge_case_note": {
+          "type": "STRING",
+          "nullable": true,
+          "description": "Edge case description."
+        },
+        "data_classification": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Always SYNTHETIC_TEST_DATA."
+        },
+        "synthetic_version": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Dataset version."
+        },
+        "do_not_use_in_prod": {
+          "type": "BOOLEAN",
+          "nullable": false,
+          "description": "Always True."
+        }
+      }
+    },
+    "InteropLink": {
+      "description": "A bilateral or multilateral connection between two RTP schemes enabling cross-border payments.",
+      "row_count": 200,
+      "fields": {
+        "link_id": {
+          "type": "UUID",
+          "nullable": false,
+          "description": "Synthetic primary key."
+        },
+        "scheme_a_code": {
+          "type": "ISO3166",
+          "nullable": false,
+          "description": "Country code of first scheme."
+        },
+        "scheme_b_code": {
+          "type": "ISO3166",
+          "nullable": false,
+          "description": "Country code of second scheme."
+        },
+        "scheme_a_name": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Name of first scheme."
+        },
+        "scheme_b_name": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Name of second scheme."
+        },
+        "link_type": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Connectivity model.",
+          "values": [
+            "Bilateral",
+            "Unilateral",
+            "Multilateral",
+            "Hub-and-Spoke"
+          ]
+        },
+        "status": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Operational status.",
+          "values": [
+            "Live",
+            "Pilot",
+            "Planned",
+            "Suspended",
+            "Deprecated"
+          ]
+        },
+        "go_live_year": {
+          "type": "INTEGER",
+          "nullable": true,
+          "description": "Year link went or is expected to go live."
+        },
+        "governing_body": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Body coordinating the interop agreement."
+        },
+        "daily_volume_usd": {
+          "type": "DECIMAL",
+          "nullable": true,
+          "description": "Synthetic daily flow estimate USD. Null if not live."
+        },
+        "avg_settlement_seconds": {
+          "type": "INTEGER",
+          "nullable": true,
+          "description": "Average end-to-end settlement time seconds. Null if not live."
+        },
+        "fx_conversion_required": {
+          "type": "BOOLEAN",
+          "nullable": false,
+          "description": "True when the two schemes use different currencies."
+        },
+        "max_tx_limit_usd": {
+          "type": "DECIMAL",
+          "nullable": false,
+          "description": "Lower of the two scheme limits \u2014 the binding constraint."
+        },
+        "protocol": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Technical messaging protocol.",
+          "values": [
+            "ISO 20022",
+            "ISO 8583",
+            "Proprietary API",
+            "SWIFT gpi"
+          ]
+        },
+        "sla_uptime_pct": {
+          "type": "DECIMAL",
+          "nullable": true,
+          "description": "Agreed SLA uptime. Null if not live."
+        },
+        "edge_case_flag": {
+          "type": "ENUM",
+          "nullable": false,
+          "description": "Test tag.",
+          "values": [
+            "NORMAL",
+            "BROKEN_LINK",
+            "VOLUME_SPIKE",
+            "ASYMMETRIC_LIMIT",
+            "REGULATORY_FREEZE",
+            "PLANNED_DEPRECATED"
+          ]
+        },
+        "edge_case_note": {
+          "type": "STRING",
+          "nullable": true,
+          "description": "Edge case description."
+        },
+        "data_classification": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Always SYNTHETIC_TEST_DATA."
+        },
+        "synthetic_version": {
+          "type": "STRING",
+          "nullable": false,
+          "description": "Dataset version."
+        },
+        "do_not_use_in_prod": {
+          "type": "BOOLEAN",
+          "nullable": false,
+          "description": "Always True."
+        }
+      }
+    }
+  },
+  "edge_cases_catalogue": {
+    "RTPScheme": {
+      "MISSING_REGULATOR": "Regulator field blank \u2014 tests null-guard",
+      "SCHEME_SUSPENDED": "Status Suspended \u2014 tests inactive scheme UI",
+      "LIMIT_CHANGE_TRANSITION": "Limit recently changed \u2014 boundary condition"
+    },
+    "Transaction": {
+      "DUPLICATE_UTR_ATTEMPT": "Second attempt within 60s of identical transaction",
+      "AMOUNT_AT_LIMIT": "Amount equals scheme maximum limit",
+      "ZERO_AMOUNT": "Zero-value transaction attempt \u2014 should always FAIL",
+      "SAME_SENDER_RECEIVER": "Sender and receiver identifiers are identical",
+      "AFTER_HOURS_LEGACY_BANK": "Initiated at 03:00 local \u2014 legacy bank offline window",
+      "HIGH_FREQUENCY_SENDER": "Sender flagged: >50 txns in last hour"
+    },
+    "Country": {
+      "MISSING_SCHEME": "Country has no RTP scheme \u2014 tests empty-state rendering",
+      "CONFLICTING_DATA": "GDP and financial inclusion figures from conflicting sources",
+      "NEWLY_INDEPENDENT": "Country recently split from another \u2014 ISO code in transition",
+      "SANCTIONS_ACTIVE": "Country under international sanctions \u2014 cross-border disabled",
+      "DATA_STALE": "World Bank data >3 years old \u2014 flagged for review"
+    },
+    "InteropLink": {
+      "BROKEN_LINK": "One scheme in pair has been suspended \u2014 link non-functional",
+      "VOLUME_SPIKE": "Daily volume 10x normal \u2014 potential system test or attack",
+      "ASYMMETRIC_LIMIT": "Scheme A and B have different transaction limits \u2014 lower applies",
+      "REGULATORY_FREEZE": "Link paused pending regulatory review by one country",
+      "PLANNED_DEPRECATED": "Link scheduled for decommission \u2014 replaced by multilateral hub"
+    }
+  }
+}
